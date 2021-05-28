@@ -137,9 +137,15 @@ Class Action {
 						$save = $this->db->query("INSERT INTO files set ".$data);
 						$last_id = $this->db->insert_id;
 						// printf ("%s -> (%s)", $save, $last_id);
-						$task_colums = " (status, file_id, note, type_approval, user_id)";
-						$task_values = " ('PENDING', '".$last_id."', 'Menunggu Persetujuan', 1, '".$_SESSION['login_id']."')";
+						$task_colums = " (status, file_id, note, user_id, status_tracking)";
+						$task_values = " ('PENDING', '".$last_id."', 'Menunggu Persetujuan', '".$_SESSION['login_id']."', 'Menunggu Approve Admin')";
 						$save_task = $this->db->query("INSERT INTO tasks ".$task_colums." VALUES " .$task_values);
+
+						$task_last_id = $this->db->insert_id;
+						// printf ("%s -> (%s)", $save_task, $task_last_id);
+						$sub_task_colums = " (status, task_id, note, user_type)";
+						$sub_task_values = " ('PENDING', '".$task_last_id."', 'Menunggu Persetujuan', 1)";
+						$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
 
 						if($save) 
 						

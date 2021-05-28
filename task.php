@@ -6,7 +6,10 @@ $folders = $conn->query("SELECT * FROM folders where parent_id = $folder_parent 
 
 $files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '".$_SESSION['login_id']."'  order by name asc");
 
-$tasks = $conn->query("SELECT task.id, user.name, file.name as filename, file.file_type, task.file_id, task.date_updated, task.status, task.note FROM tasks task join files file on file.id = task.file_id join users user on user.id = task.user_id order by date_updated desc");
+$login = $_SESSION['login_type'];
+if($login == 1) {
+	$tasks = $conn->query("SELECT sub_task.id, user.name, file.name as filename, file.file_type, task.file_id, sub_task.date_updated, sub_task.status, sub_task.note FROM sub_tasks sub_task join tasks task on task.id = sub_task.task_id join users user on user.id = task.user_id join files file on file.id = task.file_id where sub_task.user_type = 1 order by date_updated desc");
+}
 
 ?>
 <style>
@@ -135,7 +138,7 @@ a.custom-menu-list span.icon{
 	<a href="javascript:void(0)" class="custom-menu-list file-option delete">Delete</a>
 </div>
 <div id="menu-file-clone" style="display: none;">
-	<a href="javascript:void(0)" class="custom-menu-list file-option edit"><span><i class="fa fa-edit"></i> </span>Rename</a>
+	<!-- <a href="javascript:void(0)" class="custom-menu-list file-option edit"><span><i class="fa fa-edit"></i> </span>Rename</a> -->
 	<a href="javascript:void(0)" class="custom-menu-list file-option download"><span><i class="fa fa-download"></i> </span>Download</a>
 	<a href="javascript:void(0)" class="custom-menu-list file-option delete"><span><i class="fa fa-trash"></i> </span>Delete</a>
 </div>

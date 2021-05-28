@@ -144,3 +144,14 @@ CREATE TABLE `tasks` (
   `date_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
   PRIMARY KEY (id) 
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+
+  CREATE TABLE `sub_tasks` ( 
+  `id` int(11) NOT NULL AUTO_INCREMENT, 
+  `status` varchar(200) NOT NULL, 
+  `user_id` int(30) NOT NULL, 
+  `user_type` int(30) NOT NULL, 
+  `task_id` int(30) NOT NULL, 
+  `note` text, 
+  `date_updated` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, 
+  PRIMARY KEY (id) 
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
