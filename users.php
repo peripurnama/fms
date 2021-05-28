@@ -1,4 +1,13 @@
 
+<?php 
+include 'db_connect.php';
+
+$login = $_SESSION['login_type'];
+if($login != 1) {
+	header('location:login.php');
+} 
+
+?>
 <nav aria-label="breadcrumb ">
   <ol class="breadcrumb">
   <li class="breadcrumb-item text-success">Home</li>

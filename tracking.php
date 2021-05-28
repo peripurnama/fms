@@ -9,6 +9,8 @@ $files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and 
 $login = $_SESSION['login_type'];
 if($login == 2) {
 	$tasks = $conn->query("SELECT task.id, user.name, file.name as filename, file.file_type, task.file_id, task.date_updated, task.status, task.status_tracking, task.note FROM tasks task join users user on user.id = task.user_id join files file on file.id = task.file_id where task.user_id = '".$_SESSION['login_id']."' and task.status = 'PENDING' order by date_updated desc");
+} else {
+	header('location:login.php');
 }
 
 ?>

@@ -13,6 +13,8 @@ if($login == 1) {
 	$tasks = $conn->query("SELECT sub_task.id, user.name, file.name as filename, file.file_type, task.file_id, sub_task.date_updated, sub_task.status, sub_task.note FROM sub_tasks sub_task join tasks task on task.id = sub_task.task_id join users user on user.id = task.user_id join files file on file.id = task.file_id where sub_task.user_type = 3 order by date_updated desc");
 } else if($login == 4) {
 	$tasks = $conn->query("SELECT sub_task.id, user.name, file.name as filename, file.file_type, task.file_id, sub_task.date_updated, sub_task.status, sub_task.note FROM sub_tasks sub_task join tasks task on task.id = sub_task.task_id join users user on user.id = task.user_id join files file on file.id = task.file_id where sub_task.user_type = 4 order by date_updated desc");
+} else {
+	header('location:login.php');
 }
 
 ?>
