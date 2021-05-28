@@ -7,12 +7,8 @@ $folders = $conn->query("SELECT * FROM folders where parent_id = $folder_parent 
 $files = $conn->query("SELECT * FROM files where folder_id = $folder_parent and user_id = '".$_SESSION['login_id']."'  order by name asc");
 
 $login = $_SESSION['login_type'];
-if($login == 1) {
-	$tasks = $conn->query("SELECT sub_task.id, user.name, file.name as filename, file.file_type, task.file_id, sub_task.date_updated, sub_task.status, sub_task.note FROM sub_tasks sub_task join tasks task on task.id = sub_task.task_id join users user on user.id = task.user_id join files file on file.id = task.file_id where sub_task.user_type = 1 order by date_updated desc");
-} else if($login == 3) {
-	$tasks = $conn->query("SELECT sub_task.id, user.name, file.name as filename, file.file_type, task.file_id, sub_task.date_updated, sub_task.status, sub_task.note FROM sub_tasks sub_task join tasks task on task.id = sub_task.task_id join users user on user.id = task.user_id join files file on file.id = task.file_id where sub_task.user_type = 3 order by date_updated desc");
-} else if($login == 4) {
-	$tasks = $conn->query("SELECT sub_task.id, user.name, file.name as filename, file.file_type, task.file_id, sub_task.date_updated, sub_task.status, sub_task.note FROM sub_tasks sub_task join tasks task on task.id = sub_task.task_id join users user on user.id = task.user_id join files file on file.id = task.file_id where sub_task.user_type = 4 order by date_updated desc");
+if($login == 2) {
+	$tasks = $conn->query("SELECT task.id, user.name, file.name as filename, file.file_type, task.file_id, task.date_updated, task.status, task.status_tracking, task.note FROM tasks task join users user on user.id = task.user_id join files file on file.id = task.file_id where task.user_id = '".$_SESSION['login_id']."' and task.status != 'PENDING' order by date_updated desc");
 }
 
 ?>
@@ -95,10 +91,11 @@ a.custom-menu-list span.icon{
 				<div class="card-body">
 					<table width="100%">
 						<tr>
-							<th width="20%" class="">Requester</th>
+							<th width="15%" class="">Requester</th>
 							<th width="20%" class="">Filename</th>
-							<th width="20%" class="">Date</th>
-							<th width="20%" class="">Status</th>
+							<th width="15%" class="">Date</th>
+							<th width="10%" class="">Status</th>
+							<th width="20%" class="">Status Tracking</th>
 							<th width="20%" class="">Description</th>
 						</tr>
 						<?php 
@@ -125,6 +122,7 @@ a.custom-menu-list span.icon{
 							<td><large><span><i class="fa <?php echo $icon ?>"></i></span><b class="to_file"> <?php echo $name ?></b></large>
 							<td><i class="to_file"><?php echo date('Y/m/d h:i A',strtotime($row['date_updated'])) ?></i></td>
 							<td><i class="to_file"><?php echo $row['status'] ?></i></td>
+							<td><i class="to_file"><?php echo $row['status_tracking'] ?></i></td>
 							<td><i class="to_file"><?php echo $row['note'] ?></i></td>
 						</tr>
 							

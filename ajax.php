@@ -44,3 +44,9 @@ if($action == 'save_user'){
 	if($save)
 		echo $save;
 }
+
+if($action == 'approve_task'){
+	$save = $crud->approve_task();
+	if($save)
+		echo $save;
+}

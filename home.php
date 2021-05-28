@@ -72,11 +72,11 @@ a.custom-menu-list span.icon{
 				<div class="card-body">
 					<table width="100%">
 						<tr>
-							<th width="20%" class="">Requester</th>
-							<th width="20%" class="">Filename</th>
-							<th width="20%" class="">Date</th>
-							<th width="20%" class="">Status</th>
-							<th width="20%" class="">Description</th>
+							<th width="30%" class="">Requester</th>
+							<th width="40%" class="">Filename</th>
+							<th width="30%" class="">Date</th>
+							<!-- <th width="20%" class="">Status</th>
+							<th width="20%" class="">Description</th> -->
 						</tr>
 						<?php 
 					while($row=$files->fetch_assoc()):
@@ -105,8 +105,8 @@ a.custom-menu-list span.icon{
 
 							</td>
 							<td><i><?php echo date('Y/m/d h:i A',strtotime($row['date_updated'])) ?></i></td>
-							<td><i><?php echo $row['status'] ?></i></td>
-							<td><i><?php echo $row['description'] ?></i></td>
+							<!-- <td><i><?php echo $row['status'] ?></i></td>
+							<td><i><?php echo $row['description'] ?></i></td> -->
 						</tr>
 							
 					<?php endwhile; ?>

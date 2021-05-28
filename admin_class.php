@@ -148,7 +148,6 @@ Class Action {
 						$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
 
 						if($save) 
-						
 							return json_encode(array('status'=>1));
 						
 		
@@ -194,6 +193,68 @@ Class Action {
 		}
 		if($save){
 			return 1;
+		}
+	}
+
+	function approve_task(){
+		extract($_POST);
+		// printf ("%s -> ", $_POST);
+		$data = " note = '".$note."' ";
+		$data .= ", status = 'APPROVED' ";
+		$data .= ", approved_by = '".$_SESSION['login_id']."' ";
+
+		$save = $this->db->query("UPDATE sub_tasks set ".$data." where id = ".$id);
+		// printf ("%s -> (%s)", $save, $data);
+
+		$tasks = $this->db->query("SELECT * FROM sub_tasks where id = ".$id);
+		$row = $tasks -> fetch_array(MYSQLI_ASSOC);
+		if ($row) {
+
+			if($row['user_type'] == 1) {
+
+				$cek_tasks = $this->db->query("SELECT * FROM sub_tasks where task_id = ".$row['task_id']." and user_type = 3");
+				$row_cek_tasks = $cek_tasks -> fetch_array(MYSQLI_ASSOC);
+
+				if (!$row_cek_tasks) {
+					$sub_task_colums = " (status, task_id, note, user_type)";
+					$sub_task_values = " ('PENDING', '".$row['task_id']."', 'Menunggu Persetujuan', 3)";
+					$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
+				}
+
+				$data_task = "status_tracking = 'Menunggu persetujuan procurment' ";
+
+				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
+
+			} else if($row['user_type'] == 3) {
+				$cek_tasks = $this->db->query("SELECT * FROM sub_tasks where task_id = ".$row['task_id']." and user_type = 4");
+				$row_cek_tasks = $cek_tasks -> fetch_array(MYSQLI_ASSOC);
+
+				if (!$row_cek_tasks) {
+					$sub_task_colums = " (status, task_id, note, user_type)";
+					$sub_task_values = " ('PENDING', '".$row['task_id']."', 'Menunggu Persetujuan', 4)";
+					$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
+				}
+
+				$data_task = "status_tracking = 'Menunggu persetujuan project budget' ";
+
+				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
+
+			} else if($row['user_type'] == 4) {
+
+				$data_task = " note = 'Berhasil disetujui' ";
+				$data_task .= ", status = 'APPROVED' ";
+				$data_task .= ", status_tracking = 'Data berhasil disetujui' ";
+
+				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
+
+			}
+			
+		}
+		
+		if($save){
+			return 1;
+		} else {
+			return 0;
 		}
 	}
 }
