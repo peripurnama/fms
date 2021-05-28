@@ -56,3 +56,9 @@ if($action == 'reject_task'){
 	if($save)
 		echo $save;
 }
+
+if($action == 'fcm'){
+	$save = $crud->fcm();
+	if($save)
+		echo $save;
+}

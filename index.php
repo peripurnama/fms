@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Admin | Cinema Seat Reservation</title>
+  <title>FMS | File Management System</title>
  	
 
 <?php
@@ -24,12 +24,29 @@
 </style>
 
 <body>
+  <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/7.14.6/firebase-messaging.js"></script>
+  <script src="firebase.js"></script>
 	<?php include 'topbar.php' ?>
 	<?php include 'navbar.php' ?>
   <div class="toast" id="alert_toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-body text-white">
     </div>
   </div>
+
+  <div role="alert" id="alert_notif" aria-live="assertive" aria-atomic="true" class="toast" data-autohide="false">
+    <div class="toast-header">
+      <strong class="mr-auto toast-title">Notification</strong>
+      <small class="toast-request">1 mins ago</small>
+      <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="toast-body">
+      Hello, world! This is a toast message.
+    </div>
+  </div>
+
   <main id="view-panel" >
       <?php $page = isset($_GET['page']) ? $_GET['page'] :'home'; ?>
   	<?php include $page.'.php' ?>
@@ -89,6 +106,7 @@
     </div>
   </div>
 </body>
+
 <script>
 	 window.start_load = function(){
     $('body').prepend('<di id="preloader2"></di>')
@@ -158,10 +176,25 @@ window._conf = function($msg='',$func='',$params = []){
     $('#alert_toast .toast-body').html($msg)
     $('#alert_toast').toast({delay:3000}).toast('show');
   }
+
+  window.alert_notif= function($title = 'Title', $body = 'Body', $request = 'Requester'){
+      
+
+    $('#alert_notif .toast-title').html($title)
+    $('#alert_notif .toast-body').html($body)
+    $('#alert_notif .toast-request').html($request)
+
+    var dt = new Date().toTimeString().split(' ')[0];
+    $('#alert_notif .toast-date').html(dt)
+    $('#alert_notif').toast({delay:3000}).toast('show');
+  }
+  
   $(document).ready(function(){
     $('#preloader').fadeOut('fast', function() {
         $(this).remove();
       })
   })
+
+  
 </script>	
 </html>

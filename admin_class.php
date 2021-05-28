@@ -1,4 +1,7 @@
 <?php
+
+
+
 session_start();
 Class Action {
 	private $db;
@@ -6,6 +9,7 @@ Class Action {
 	public function __construct() {
 		ob_start();
    	include 'db_connect.php';
+	//include 'send_notification.php';
     
     $this->db = $conn;
 	}
@@ -16,20 +20,17 @@ Class Action {
 
 	function login(){
 		extract($_POST);
-
-		
-		
 		$qry = $this->db->query("SELECT * FROM users where username = '".$username."' ");
 		$row = $qry -> fetch_array(MYSQLI_ASSOC);
-		//printf ("%s", $row["password"]);
+		// printf ("%s", $qry);
 		if (is_array($row))
 		{
-			//printf ("%s", "cek");
+			// printf ("%s", "cek");
 			if (password_verify($password, $row['password']))
 			{
 				foreach ($row as $key => $value) {
 				
-					if($key != 'passwors' && !is_numeric($key)) {
+					if($key != 'fcm_token' && $key != 'passwors' && !is_numeric($key)) {
 						//printf ("%s (%s)", $key, $value);
 						$_SESSION['login_'.$key] = $value;
 					}
@@ -147,6 +148,47 @@ Class Action {
 						$sub_task_values = " ('PENDING', '".$task_last_id."', 'Menunggu Persetujuan', 1)";
 						$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
 
+						$url = "https://fcm.googleapis.com/fcm/send";
+						/** 
+						* Firebase Console -> Select Projects From Top Naviagation 
+						*      -> Left Side bar -> Project Overview -> Project Settings
+						*      -> General -> Scroll Down and you will be able to see KEYS
+						*/
+						$subscription_key  = "key=AAAAsvg8HuM:APA91bG1Emb-L3CuBbG4CAjRcvq0fsGX0qhZ-gZOaHhvIBT7PPUA16X0Eyr4xsGs8bBBQhSAGThSkdi_vhPqz3d5WhY3qR8RMl9atohHMNDkYtvynaIwz6eW41Nkzr3btdPUgZeAjgkJ";
+
+						/** We will need to set the following header to make request work */
+						$request_headers = array(
+							"Authorization:" . $subscription_key,
+							"Content-Type: application/json"
+						);
+
+						/** Data that will be shown when push notifications get triggered */
+						$postRequest = [
+							"notification" => [
+								"title" =>  "New Article",
+								"body" =>  "Firebase Cloud Messaging for Web using JavaScript",
+								"icon" =>  "https://c.disquscdn.com/uploads/users/34896/2802/avatar92.jpg",
+								"click_action" =>  "http://localhost/filesystem"
+							],
+							/** Customer Token, As of now I got from console. You might need to pull from database */
+							"to" =>  "c15Z4N9-5DJKYKoJ39OSuz:APA91bGbV0dq_T6n__r1R06edfChsiyoFdKZ4JGxGtWYXt5ihgc1WdZBnvaCFjALzUZCjEm-CxrYIZhG5UIuok6zVpZzgJ0fmnAst_JSbPFXRC61ehsBorstVUxtdQ5iHDnq0M2KgxbY"
+						];
+
+						/** CURL POST code */
+						$ch = curl_init();
+						curl_setopt($ch, CURLOPT_URL, $url);
+						curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postRequest));
+						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+						curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
+
+						$season_data = curl_exec($ch);
+
+						if (curl_errno($ch)) {
+							print "Error: " . curl_error($ch);
+							exit();
+						}
+						
+						
 						if($save) 
 							return json_encode(array('status'=>1));
 						
@@ -316,5 +358,18 @@ Class Action {
 		} else {
 			return 0;
 		}
+	}
+
+	function fcm(){
+		extract($_POST);
+		
+		if($_SESSION['login_id']) {
+			$data = " fcm_token = '$token' ";
+			$save = $this->db->query("UPDATE users set ".$data." where id = ".$_SESSION['login_id']);
+			if($save){
+				return 1;
+			}
+		}
+		
 	}
 }
