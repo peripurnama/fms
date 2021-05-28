@@ -27,9 +27,47 @@ if(isset($_GET['id'])){
 			method:'POST',
 			data:$('#manage_task').serialize(),
 			success:function(resp){
-				console.log(resp);
-				if(resp ==1){
-					alert_toast("Data successfully saved",'success')
+				if(resp == 1){
+					alert_toast("Data berhasil diapprove",'success')
+					setTimeout(function(){
+						location.reload()
+					},1500)
+				} else if (resp == 3) {
+					alert_toast("Maaf! Data sudah di approved", 'danger')
+					setTimeout(function(){
+						location.reload()
+					},1500)
+				} else if (resp == 4) {
+					alert_toast("Maaf! Data sudah di reject", 'danger')
+					setTimeout(function(){
+						location.reload()
+					},1500)
+				}
+			}
+		})
+	})
+
+	$('#reject').click(function(e){
+		
+		e.preventDefault();
+		start_load()
+		$.ajax({
+			url:'ajax.php?action=reject_task',
+			method:'POST',
+			data:$('#manage_task').serialize(),
+			success:function(resp){
+				if(resp == 1){
+					alert_toast("Data berhasil direject",'success')
+					setTimeout(function(){
+						location.reload()
+					},1500)
+				} else if (resp == 3) {
+					alert_toast("Maaf! Data sudah di approved", 'danger')
+					setTimeout(function(){
+						location.reload()
+					},1500)
+				} else if (resp == 4) {
+					alert_toast("Maaf! Data sudah di reject", 'danger')
 					setTimeout(function(){
 						location.reload()
 					},1500)

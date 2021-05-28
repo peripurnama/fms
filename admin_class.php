@@ -203,12 +203,17 @@ Class Action {
 		$data .= ", status = 'APPROVED' ";
 		$data .= ", approved_by = '".$_SESSION['login_id']."' ";
 
-		$save = $this->db->query("UPDATE sub_tasks set ".$data." where id = ".$id);
 		// printf ("%s -> (%s)", $save, $data);
 
 		$tasks = $this->db->query("SELECT * FROM sub_tasks where id = ".$id);
 		$row = $tasks -> fetch_array(MYSQLI_ASSOC);
 		if ($row) {
+
+			if($row['status'] == 'APPROVED') {
+				return 3;
+			} else if($row['status'] == 'REJECT') {
+				return 4;
+			}
 
 			if($row['user_type'] == 1) {
 
@@ -250,7 +255,62 @@ Class Action {
 			}
 			
 		}
-		
+		$save = $this->db->query("UPDATE sub_tasks set ".$data." where id = ".$id);
+		if($save){
+			return 1;
+		} else {
+			return 0;
+		}
+	}
+
+	function reject_task(){
+		extract($_POST);
+		// printf ("%s -> ", $_POST);
+		$data = " note = '".$note."' ";
+		$data .= ", status = 'REJECT' ";
+		$data .= ", approved_by = '".$_SESSION['login_id']."' ";
+
+		// printf ("%s -> (%s)", $save, $data);
+
+		$tasks = $this->db->query("SELECT * FROM sub_tasks where id = ".$id);
+		$row = $tasks -> fetch_array(MYSQLI_ASSOC);
+		if ($row) {
+
+			if($row['status'] == 'APPROVED') {
+				return 3;
+			} else if($row['status'] == 'REJECT') {
+				return 4;
+			}
+
+			if($row['user_type'] == 1) {
+				
+				$data_task = " note = '".$note."' ";
+				$data_task .= ", status = 'REJECT' ";
+				$data_task .= ", status_tracking = 'Maaf! Data tidak berhasil disetujui oleh Admin' ";
+
+				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
+
+			} else if($row['user_type'] == 3) {
+				
+
+				$data_task = " note = '".$note."' ";
+				$data_task .= ", status = 'REJECT' ";
+				$data_task .= ", status_tracking = 'Maaf! Data tidak berhasil disetujui oleh Procurment' ";
+
+				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
+
+			} else if($row['user_type'] == 4) {
+
+				$data_task = " note = '".$note."' ";
+				$data_task .= ", status = 'REJECT' ";
+				$data_task .= ", status_tracking = 'Maaf! Data tidak berhasil disetujui oleh Product Budget' ";
+
+				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
+
+			}
+			
+		}
+		$save = $this->db->query("UPDATE sub_tasks set ".$data." where id = ".$id);
 		if($save){
 			return 1;
 		} else {

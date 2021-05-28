@@ -82,7 +82,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id='approved'>Approved</button>
-        <button type="button" class="btn btn-primary" id='reject' onclick="$('#modal_task form').submit()">Reject</button>
+        <button type="button" class="btn btn-primary" id='reject'>Reject</button>
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
       </div>
       </div>

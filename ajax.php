@@ -50,3 +50,9 @@ if($action == 'approve_task'){
 	if($save)
 		echo $save;
 }
+
+if($action == 'reject_task'){
+	$save = $crud->reject_task();
+	if($save)
+		echo $save;
+}
