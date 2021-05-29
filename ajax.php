@@ -62,3 +62,9 @@ if($action == 'fcm'){
 	if($save)
 		echo $save;
 }
+
+if($action == 'count_notif'){
+	$save = $crud->count_notif();
+	if($save)
+		echo $save;
+}

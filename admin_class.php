@@ -5,13 +5,19 @@
 session_start();
 Class Action {
 	private $db;
+	private $url;
+	private $subscription_key;
+	private $request_headers;
 
 	public function __construct() {
 		ob_start();
-   	include 'db_connect.php';
-	//include 'send_notification.php';
-    
-    $this->db = $conn;
+		include 'db_connect.php';
+		include 'send_notification.php';
+		
+		$this->url = $url;
+		$this->subscription_key = $subscription_key;
+		$this->request_headers = $request_headers;
+    	$this->db = $conn;
 	}
 	function __destruct() {
 	    $this->db->close();
@@ -148,46 +154,73 @@ Class Action {
 						$sub_task_values = " ('PENDING', '".$task_last_id."', 'Menunggu Persetujuan', 1)";
 						$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
 
-						$url = "https://fcm.googleapis.com/fcm/send";
-						/** 
-						* Firebase Console -> Select Projects From Top Naviagation 
-						*      -> Left Side bar -> Project Overview -> Project Settings
-						*      -> General -> Scroll Down and you will be able to see KEYS
-						*/
-						$subscription_key  = "key=AAAAsvg8HuM:APA91bG1Emb-L3CuBbG4CAjRcvq0fsGX0qhZ-gZOaHhvIBT7PPUA16X0Eyr4xsGs8bBBQhSAGThSkdi_vhPqz3d5WhY3qR8RMl9atohHMNDkYtvynaIwz6eW41Nkzr3btdPUgZeAjgkJ";
+						$user_login = $this->db->query("SELECT * FROM users where id = '".$_SESSION['login_id']."' ");
+						$user_admin = $this->db->query("SELECT * FROM users where type = 1 ");
 
-						/** We will need to set the following header to make request work */
-						$request_headers = array(
-							"Authorization:" . $subscription_key,
-							"Content-Type: application/json"
-						);
+						$row_user_login = $user_login->fetch_array(MYSQLI_ASSOC);
+						$row_user_admin = $user_admin->fetch_array(MYSQLI_ASSOC);
+						$fcm_tokens=array();
+						
+						if (is_array($row_user_admin))
+						{
+							foreach ($row_user_admin as $key => $value) {
+								
+								if($key == 'fcm_token') {
+									// printf ("fcm token -> %s", $value);
+									array_push($fcm_tokens, $value);
+								}
+									
+							}
+						}
+						$notif_colums = " (task_id, user_id, title, content, is_deliver, is_read, user_type)";
+						$notif_values = " ('".$last_id."', '".$_SESSION['login_id']."', 'Notification', '".$description."', 1, 0, 1)";
+						$save_notif = $this->db->query("INSERT INTO notification_task ".$notif_colums." VALUES " .$notif_values);
+
+						$this->sendFirebaseNotification($fcm_tokens, 'Notification', $description, $row_user_login['name']);
+
+						// $finalPostArray = array('registration_ids' => $fcm_tokens,
+						// 		'notification' => array('body' => 'test',
+						// 								'title' => 'momo2'),
+						// 		"data"=> array("click_action"=> "FLUTTER_NOTIFICATION_CLICK",
+						// 						"sound"=> "default", 
+						// 						"status"=> "done")); 
+		
+						// $ch = curl_init();
+						// curl_setopt($ch, CURLOPT_URL, $this->url);
+						// curl_setopt($ch, CURLOPT_POST, 1);
+						// curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($finalPostArray));  //Post Fields
+						// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+						// curl_setopt($ch, CURLOPT_HTTPHEADER, $this->request_headers);
+						// $server_output = curl_exec ($ch);
+						// curl_close ($ch);
 
 						/** Data that will be shown when push notifications get triggered */
-						$postRequest = [
-							"notification" => [
-								"title" =>  "New Article",
-								"body" =>  "Firebase Cloud Messaging for Web using JavaScript",
-								"icon" =>  "https://c.disquscdn.com/uploads/users/34896/2802/avatar92.jpg",
-								"click_action" =>  "http://localhost/filesystem"
-							],
-							/** Customer Token, As of now I got from console. You might need to pull from database */
-							"to" =>  "c15Z4N9-5DJKYKoJ39OSuz:APA91bGbV0dq_T6n__r1R06edfChsiyoFdKZ4JGxGtWYXt5ihgc1WdZBnvaCFjALzUZCjEm-CxrYIZhG5UIuok6zVpZzgJ0fmnAst_JSbPFXRC61ehsBorstVUxtdQ5iHDnq0M2KgxbY"
-						];
+						// $postRequest = [
+						// 	"notification" => [
+						// 		//"requester" => ".$user_login['name'].",
+						// 		"title" =>  "New Article",
+						// 		"body" =>  "test bro ooo",
+						// 		"icon" =>  "avatar92.jpg",
+						// 		"link" =>  "http://localhost/filesystem"
+						// 	],
+						// 	/** Customer Token, As of now I got from console. You might need to pull from database */
+						// 	"to" =>  "c15Z4N9-5DJKYKoJ39OSuz:APA91bGbV0dq_T6n__r1R06edfChsiyoFdKZ4JGxGtWYXt5ihgc1WdZBnvaCFjALzUZCjEm-CxrYIZhG5UIuok6zVpZzgJ0fmnAst_JSbPFXRC61ehsBorstVUxtdQ5iHDnq0M2KgxbY"
+						// ];
 
-						/** CURL POST code */
-						$ch = curl_init();
-						curl_setopt($ch, CURLOPT_URL, $url);
-						curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postRequest));
-						curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-						curl_setopt($ch, CURLOPT_HTTPHEADER, $request_headers);
+						// /** CURL POST code */
+						// $ch = curl_init();
+						// curl_setopt($ch, CURLOPT_URL, $this->url);
+						// curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postRequest));
+						// curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+						// curl_setopt($ch, CURLOPT_HTTPHEADER, $this->request_headers);
 
-						$season_data = curl_exec($ch);
+						// $season_data = curl_exec($ch);
 
-						if (curl_errno($ch)) {
-							print "Error: " . curl_error($ch);
-							exit();
-						}
-						
+						// if (curl_errno($ch)) {
+						// 	print "Error: " . curl_error($ch);
+						// 	exit();
+						// }
+
 						
 						if($save) 
 							return json_encode(array('status'=>1));
@@ -208,6 +241,28 @@ Class Action {
 			}
 
 	}
+
+	function sendFirebaseNotification($fb_key_array, $title, $body, $link){
+	
+		$finalPostArray = array('registration_ids' => $fb_key_array,
+								'notification' => array('body' => $body,
+														'title' => $title,
+														"image"=> $link),
+								"data"=> array("click_action"=> "FLUTTER_NOTIFICATION_CLICK",
+												"sound"=> "default", 
+												"status"=> "done")); 
+		
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->url);
+		curl_setopt($ch, CURLOPT_POST, 1);
+		curl_setopt($ch, CURLOPT_POSTFIELDS,json_encode($finalPostArray));  //Post Fields
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $this->request_headers);
+		$server_output = curl_exec ($ch);
+		curl_close ($ch);
+		//echo $server_output; 
+	}
+
 	function file_rename(){
 		extract($_POST);
 		$file[0] = $name;
@@ -266,6 +321,7 @@ Class Action {
 					$sub_task_colums = " (status, task_id, note, user_type)";
 					$sub_task_values = " ('PENDING', '".$row['task_id']."', 'Menunggu Persetujuan', 3)";
 					$save_sub_task = $this->db->query("INSERT INTO sub_tasks ".$sub_task_colums." VALUES " .$sub_task_values);
+					
 				}
 
 				$data_task = "status_tracking = 'Menunggu persetujuan procurment' ";
@@ -293,7 +349,7 @@ Class Action {
 				$data_task .= ", status_tracking = 'Data berhasil disetujui' ";
 
 				$save_data_task = $this->db->query("UPDATE tasks set ".$data_task." where id = ".$row['task_id']);
-
+				
 			}
 			
 		}
@@ -372,4 +428,18 @@ Class Action {
 		}
 		
 	}
+
+	function count_notif(){
+		extract($_GET);
+		
+		if($_SESSION['login_type']) {
+			// $qry = $this->db->query("SELECT * FROM users where id = '".$_SESSION['login_id']."' ");
+			// $row_user = $qry -> fetch_array(MYSQLI_ASSOC);
+			// printf ("%s", $row_user['type']);
+			$count_notif = $this->db->query("SELECT COUNT(*) FROM notification_task WHERE user_type=".$_SESSION['login_type'])->fetch_row()[0];
+			return $count_notif;
+		}
+		
+	}
+
 }

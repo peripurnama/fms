@@ -29,12 +29,13 @@
   <script src="firebase.js"></script>
 	<?php include 'topbar.php' ?>
 	<?php include 'navbar.php' ?>
+  
   <div class="toast" id="alert_toast" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="toast-body text-white">
     </div>
   </div>
 
-  <div role="alert" id="alert_notif" aria-live="assertive" aria-atomic="true" class="toast" data-autohide="false">
+  <div role="alert"  aria-live="assertive" aria-atomic="true" class="toast alert_notif" data-autohide="false">
     <div class="toast-header">
       <strong class="mr-auto toast-title">Notification</strong>
       <small class="toast-request">1 mins ago</small>
@@ -180,13 +181,13 @@ window._conf = function($msg='',$func='',$params = []){
   window.alert_notif= function($title = 'Title', $body = 'Body', $request = 'Requester'){
       
 
-    $('#alert_notif .toast-title').html($title)
-    $('#alert_notif .toast-body').html($body)
-    $('#alert_notif .toast-request').html($request)
+    $('.alert_notif .toast-title').html($title)
+    $('.alert_notif .toast-body').html($body)
+    $('.alert_notif .toast-request').html($request)
 
     var dt = new Date().toTimeString().split(' ')[0];
-    $('#alert_notif .toast-date').html(dt)
-    $('#alert_notif').toast({delay:3000}).toast('show');
+    $('.alert_notif .toast-date').html(dt)
+    $('.alert_notif').toast({delay:3000}).toast('show');
   }
   
   $(document).ready(function(){
